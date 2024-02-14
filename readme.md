@@ -12,7 +12,7 @@ This project is an attempt at creating a web application for manually counting t
 
 ## Setup
 
-1. Clone this repository and enter the directory: `git clone url && cd manual_traffic_counting`
+1. Clone this repository and enter the directory: `git clone git@github.com:amirbabaei97/manual_traffic_counting.git && cd manual_traffic_counting`
 2. Set up a virtual environment and activate it: `python3 -m venv venv && source venv/bin/activate`
 3. Install the required dependencies: `pip install -r requirements.txt`
 4. Run migrations: `python manage.py migrate`
