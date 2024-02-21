@@ -1,15 +1,20 @@
 from django.contrib import admin
 from django.http import HttpResponse
 from django.db.models import Count
-from django.utils.html import format_html
 import csv
 from .models import CarType, CountingSession, CarCount
 
 @admin.register(CarType)
 class CarTypeAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'image_tag')  
 
-from django.utils.html import format_html
+    def image_tag(self, obj):
+        from django.utils.html import format_html
+        if obj.image:
+            return format_html('<img src="{}" width="80" height="50" />'.format(obj.image.url))
+        return "No Image"
+    image_tag.short_description = 'Image Preview'
+
 
 @admin.register(CountingSession)
 class CountingSessionAdmin(admin.ModelAdmin):

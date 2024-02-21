@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('django_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [os.getenv('django_ALLOWED_HOSTS'),"localhost"]
+ALLOWED_HOSTS = [os.getenv('django_ALLOWED_HOSTS'),"127.0.0.1"]
 
 
 # Application definition
@@ -130,3 +130,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'start_session'
 LOGOUT_REDIRECT_URL = 'login'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
