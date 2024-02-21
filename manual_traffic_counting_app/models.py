@@ -13,7 +13,8 @@ class CountingSession(models.Model):
     direction = models.CharField(max_length=100)
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(null=True, blank=True)
-    streams = models.CharField(max_length=100, blank=True)  
+    streams = models.CharField(max_length=100, blank=True)
+    car_types = models.ManyToManyField(CarType, blank=True)  
 
     def __str__(self):
         return f"{self.name} - {self.start_time}"

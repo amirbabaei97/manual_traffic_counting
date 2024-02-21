@@ -16,43 +16,40 @@ class UserLoginView(LoginView):
 
 @login_required
 def start_session(request):
-    # Define the stream numbers range here for reuse
+    car_types = CarType.objects.all()  # Get all car types to display in the form
     stream_numbers = range(1, 13)
     
     if request.method == 'POST':
         session_name = request.POST.get('name')
         direction = request.POST.get('direction')
-        streams = request.POST.getlist('streams')  # Get list of selected streams
+        streams = request.POST.getlist('streams')
+        selected_car_type_ids = request.POST.getlist('car_types')  # Get list of selected car types
         
-        if not session_name or not direction or not streams:
-            # Use Django's messages framework for error handling
-            if not session_name:
-                messages.error(request, "Session name is required.")
-            if not direction:
-                messages.error(request, "Direction is required.")
-            if not streams:
-                messages.error(request, "At least one stream is required.")
-            
-            # Repass necessary context for the template to render properly again
-            return render(request, 'start_session.html', {'stream_numbers': stream_numbers})
+        if not session_name or not direction or not streams or not selected_car_type_ids:
+            messages.error(request, "All fields are required.")
+            return render(request, 'start_session.html', {
+                'stream_numbers': stream_numbers, 'car_types': car_types
+            })
         
-        # Proceed with creating the session
-        streams_str = ','.join(streams)  # Join the list of streams into a comma-separated string
+        streams_str = ','.join(streams)
         session = CountingSession.objects.create(
             name=session_name,
             direction=direction,
             start_time=timezone.now(),
             streams=streams_str,
         )
+        session.car_types.set(selected_car_type_ids)  # Associate selected car types with the session
         return redirect('count_cars', session_id=session.id)
     else:
-        # Pass the streams range to the template on GET requests
-        return render(request, 'start_session.html', {'stream_numbers': stream_numbers})
+        return render(request, 'start_session.html', {
+            'stream_numbers': stream_numbers, 'car_types': car_types
+        })
+
 
 @login_required
 def count_cars(request, session_id):
     session = CountingSession.objects.get(id=session_id)
-    car_types = CarType.objects.all()
+    car_types = session.car_types.all()
     selected_streams = list(map(int, session.streams.split(','))) if session.streams else []
 
     stream_dict = {}

@@ -18,15 +18,13 @@ class CarTypeAdmin(admin.ModelAdmin):
 
 @admin.register(CountingSession)
 class CountingSessionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'start_time', 'end_time', 'direction', 'streams', 'display_car_counts')
-    readonly_fields = ('start_time', 'end_time', 'display_car_counts_detail', 'streams')
+    list_display = ('name', 'start_time', 'end_time', 'direction', 'streams', 'display_car_counts','display_car_types')
+    readonly_fields = ('start_time', 'end_time', 'display_car_counts', 'streams')
     actions = ['export_to_csv']
-
-    def display_car_counts_detail(self, obj):
-        car_counts = CarCount.objects.filter(session=obj).values('car_type__name').annotate(total=Count('car_type'))
-        count_strings = [f"{car_count['car_type__name']}: {car_count['total']}" for car_count in car_counts]
-        return ", ".join(count_strings)
-    display_car_counts_detail.short_description = "Car Counts"
+    
+    def display_car_types(self, obj):
+        return ", ".join([car_type.name for car_type in obj.car_types.all()])
+    display_car_types.short_description = "Car Types"
 
     def display_car_counts(self, obj):
         car_counts = CarCount.objects.filter(session=obj).values('car_type__name').annotate(total=Count('car_type'))
@@ -39,18 +37,18 @@ class CountingSessionAdmin(admin.ModelAdmin):
         response['Content-Disposition'] = 'attachment; filename="counting_sessions.csv"'
         writer = csv.writer(response)
 
-        writer.writerow(['Session Name', 'Start Time', 'End Time', 'Direction','Streams', 'Car Type Counts'])
+        writer.writerow(['Session Name', 'Start Time', 'End Time', 'Direction','Streams','Selected Car Types', 'Car Type Counts'])
         for session in queryset:
             car_counts = CarCount.objects.filter(session=session).values('car_type__name').annotate(total=Count('car_type'))
             count_strings = [f"{count['car_type__name']}: {count['total']}" for count in car_counts]
-            writer.writerow([session.name, session.start_time, session.end_time, session.direction, session.streams, "; ".join(count_strings)])
+            writer.writerow([session.name, session.start_time, session.end_time, session.direction, session.streams, [car_type.name for car_type in session.car_types.all()],"; ".join(count_strings)])
 
         return response
 
     export_to_csv.short_description = "Export Selected Sessions to CSV"
 
     # Specify which fields to display in the detail view
-    fields = ('name', 'direction', 'start_time', 'end_time', 'display_car_counts_detail','streams')
+    fields = ('name', 'direction', 'start_time', 'end_time', 'display_car_counts','streams')
 
 @admin.register(CarCount)
 class CarCountAdmin(admin.ModelAdmin):

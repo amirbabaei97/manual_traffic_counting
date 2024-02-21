@@ -40,14 +40,14 @@
             border-radius: 4px;
         }
 
-        .stream-checkboxes {
+        .checkboxes {
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
             margin-top: 10px;
         }
 
-        .stream-checkboxes div {
+        .checkboxes div {
             display: flex;
             align-items: center; /* Align checkbox and label vertically */
             flex-basis: calc(33.333% - 10px);
@@ -82,7 +82,7 @@
         <input type="text" id="direction" name="direction">
 
         <label for="streams">Streams:</label>
-        <div class="stream-checkboxes">
+        <div class="checkboxes">
             {% for i in stream_numbers %}
             <div>
                 <input type="checkbox" id="stream{{ i }}" name="streams" value="{{ i }}">
@@ -90,7 +90,15 @@
             </div>
             {% endfor %}
         </div>
-
+        <label for="car_types">Car Types:</label>
+        <div class="checkboxes">
+            {% for car_type in car_types %}
+            <div>
+                <input type="checkbox" id="car_type{{ car_type.id }}" name="car_types" value="{{ car_type.id }}">
+                <label for="car_type{{ car_type.id }}">{{ car_type.name }}</label>
+            </div>
+            {% endfor %}
+        </div>
         <button type="submit">Start Session</button>
         <a href="{% url 'logout' %}" style="margin-top: 10px; display: flex; justify-content: center;">Logout</a>
     </form>
