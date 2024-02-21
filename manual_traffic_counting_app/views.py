@@ -7,7 +7,16 @@ from django.http import HttpResponse
 from django.db.models import Count as DjangoCount
 from .models import CarType, CountingSession, CarCount
 from django.utils import timezone
+from django.contrib.auth.views import LoginView, LogoutView
+from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required
 
+class UserLoginView(LoginView):
+    template_name = 'login.html'  # Path to your login template
+    redirect_authenticated_user = True
+    next_page = reverse_lazy('start_session')  # Redirect to home page upon login
+
+@login_required
 def start_session(request):
     if request.method == 'POST':
         session_name = request.POST.get('name')
@@ -31,6 +40,7 @@ def start_session(request):
     else:
         return render(request, 'start_session.html')
 
+@login_required
 def count_cars(request, session_id):
     session = CountingSession.objects.get(id=session_id)
     car_types = CarType.objects.all()
