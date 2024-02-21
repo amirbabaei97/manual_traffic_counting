@@ -51,6 +51,17 @@ def count_cars(request, session_id):
     session = CountingSession.objects.get(id=session_id)
     car_types = session.car_types.all()
     selected_streams = list(map(int, session.streams.split(','))) if session.streams else []
+    
+    grid_positions = {
+        1: "2 / 1", 2: "3 / 1", 3: "4 / 1",
+        4: "5 / 2", 5: "5 / 3", 6: "5 / 4",
+        7: "4 / 5", 8: "3 / 5", 9: "2 / 5",
+        10: "1 / 2", 11: "1 / 3", 12: "1 / 4",
+    }
+
+
+    # Filter selected_streams to include only those with an associated grid position
+    valid_streams = [stream for stream in selected_streams if stream in grid_positions]
 
     stream_dict = {}
     stream_counts = {}
@@ -94,5 +105,6 @@ def count_cars(request, session_id):
             'session_id': session.id,
             'current_counts': counts_dict,
             'stream_counts': stream_dict,
-            'selected_streams': selected_streams
+            'selected_streams': valid_streams,  # Pass valid_streams instead
+            'grid_positions': grid_positions,  # New
         })

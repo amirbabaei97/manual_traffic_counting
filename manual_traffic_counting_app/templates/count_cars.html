@@ -1,33 +1,47 @@
+{% load custom_filters %}
+
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Count Cars</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 10px;
-            background-color: #f0f0f0;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 95vh;
+            background-color: #f0f0f0;
         }
-        .stream-section {
+
+        .intersection {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            width: 100vw;
+            height: 100vh;
+            background-color: #fff;
+            gap: 20px;
+        }
+
+        .lane {
+            background-color: #d47f7f;
             width: 100%;
-            max-width: 500px; /* Adjust based on your preference */
-            margin-bottom: 20px;
+            height: 100%;
         }
-        .stream-section h3 {
-            text-align: center;
-        }
+      
+
         .car-button-form {
             display: inline-block;
             margin: 5px;
         }
+
         .car-button {
-            width: auto; /* Adjust button width as needed */
+            width: auto;
+            /* Adjust button width as needed */
             background-color: #007bff;
             color: white;
             padding: 10px;
@@ -39,20 +53,25 @@
             justify-content: center;
             gap: 10px;
         }
+
         .car-button:hover {
             background-color: #0056b3;
         }
+
         img.car-image {
             width: 50px;
             height: auto;
             border-radius: 4px;
         }
-        .count, .total-count {
+
+        .count,
+        .total-count {
             font-size: 1em;
             color: #666;
             margin-top: 5px;
             text-align: center;
         }
+
         .end-session-form {
             width: 100%;
             display: flex;
@@ -61,31 +80,37 @@
         }
     </style>
 </head>
+
 <body>
-    {% for stream in selected_streams %}
-    <div class="stream-section">
-        <h3>Stream {{ stream }}</h3>
-        {% for car_type in car_types %}
-            <form method="post" class="car-button-form">
-                {% csrf_token %}
-                <input type="hidden" name="stream_number" value="{{ stream }}">
-                <button type="submit" name="car_type_id" value="{{ car_type.id }}" class="car-button">
-                    {% if car_type.image %}
-                        <img src="{{ car_type.image.url }}" alt="{{ car_type.name }}" class="car-image">
-                    {% endif %}
-                    {{ car_type.name }}
-                </button>
-            </form>
+    <div class="intersection content">
+        {% for stream in selected_streams %}
+            <div class="lane" style="grid-area: {{ grid_positions|get_item:stream }};">
+                <h3>Stream {{ stream }}</h3>
+                {% for car_type in car_types %}
+                        <form method="post" class="car-button-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="stream_number" value="{{ stream }}">
+                            <button type="submit" name="car_type_id" value="{{ car_type.id }}" class="car-button">
+                                {% if car_type.image %}
+                                    <img src="{{ car_type.image.url }}" alt="{{ car_type.name }}" class="car-image">
+                                {% endif %}
+                                {{ car_type.name }}
+                                <!-- Correctly display count for this car type and stream -->
+                                <span>Count: {{ stream_counts|get_item:stream|get_item:car_type.name|default:"0" }}</span>
+                            </button>
+                        </form>
+                {% endfor %}
+            </div>
         {% endfor %}
+        <div style="grid-area: 2 / 3;">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" name="action" value="end_session" class="car-button">End Session</button>
+            </form>
+        </div>
+        <div style="grid-area: 5 / 5;">
+            Total Count: {{ current_counts|default:"0" }}
+        </div>
     </div>
-    <span>Stream Count: {{ stream_counts|default_if_none:"0"}}</span>
-    {% endfor %}
-    <div class="end-session-form">
-        <form method="post">
-            {% csrf_token %}
-            <button type="submit" name="action" value="end_session" class="car-button">End Session</button>
-        </form>
-    </div>
-    <div class="total-count">Total Count: {{ current_counts|default:"0" }}</div>
 </body>
 </html>
