@@ -14,16 +14,20 @@
             align-items: center;
             min-height: 100vh;
         }
-        .buttons-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around; /* Adjust spacing around buttons */
-            gap: 10px; /* Space between buttons */
+        .stream-section {
             width: 100%;
             max-width: 500px; /* Adjust based on your preference */
+            margin-bottom: 20px;
         }
-        button {
-            width: calc(40% - 10px); /* Adjust width for two buttons per row, accounting for gap */
+        .stream-section h3 {
+            text-align: center;
+        }
+        .car-button-form {
+            display: inline-block;
+            margin: 5px;
+        }
+        .car-button {
+            width: auto; /* Adjust button width as needed */
             background-color: #007bff;
             color: white;
             padding: 10px;
@@ -32,10 +36,10 @@
             cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center; /* Ensure text and image are centered */
+            justify-content: center;
             gap: 10px;
         }
-        button:hover {
+        .car-button:hover {
             background-color: #0056b3;
         }
         img.car-image {
@@ -43,37 +47,45 @@
             height: auto;
             border-radius: 4px;
         }
-        .count {
+        .count, .total-count {
             font-size: 1em;
             color: #666;
             margin-top: 5px;
+            text-align: center;
         }
-        @media (max-width: 768px) {
-            button {
-                width: calc(100% - 10px); /* Full width on smaller screens */
-            }
-            img.car-image {
-                width: 40px; /* Smaller image on smaller screens */
-            }
+        .end-session-form {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <form method="post" class="buttons-container">
-        {% csrf_token %}
+    {% for stream in selected_streams %}
+    <div class="stream-section">
+        <h3>Stream {{ stream }}</h3>
         {% for car_type in car_types %}
-            <button name="car_type_id" value="{{ car_type.id }}" type="submit">
-                {% if car_type.image %}
-                    <img src="{{ car_type.image.url }}" alt="{{ car_type.name }}" class="car-image">
-                {% endif %}
-                <span>{{ car_type.name }}</span>
-            </button>
+            <form method="post" class="car-button-form">
+                {% csrf_token %}
+                <input type="hidden" name="stream_number" value="{{ stream }}">
+                <button type="submit" name="car_type_id" value="{{ car_type.id }}" class="car-button">
+                    {% if car_type.image %}
+                        <img src="{{ car_type.image.url }}" alt="{{ car_type.name }}" class="car-image">
+                    {% endif %}
+                    {{ car_type.name }}
+                </button>
+            </form>
         {% endfor %}
-        <!-- If the End Session button should remain full width or be part of the grid, adjust here -->
-        <div style="width: 100%; display: flex; justify-content: center;">
-            <button name="action" value="end_session" type="submit">End Session</button>
-        </div>
-        <div class="count" style="width: 100%; text-align: center;">Counted: {{ current_counts|default_if_none:"0" }}</div>
-    </form>
+    </div>
+    <span>Stream Count: {{ stream_counts|default_if_none:"0"}}</span>
+    {% endfor %}
+    <div class="end-session-form">
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" name="action" value="end_session" class="car-button">End Session</button>
+        </form>
+    </div>
+    <div class="total-count">Total Count: {{ current_counts|default:"0" }}</div>
 </body>
 </html>

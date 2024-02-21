@@ -14,27 +14,46 @@
             align-items: center;
             min-height: 100vh;
         }
+
         form {
             width: 100%;
-            max-width: 400px; /* Makes form not too wide on larger screens */
+            max-width: 400px;
             background-color: #fff;
             padding: 20px;
             margin: 10px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         label {
             display: block;
             margin-bottom: 5px;
-            margin-top: 20px;
+            margin-top: 8px;
+            margin-left: 5px;
         }
+
         input[type="text"] {
-            width: calc(100% - 16px); /* Account for padding */
+            width: calc(100% - 16px);
             padding: 8px;
             margin-bottom: 20px;
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+
+        .stream-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .stream-checkboxes div {
+            display: flex;
+            align-items: center; /* Align checkbox and label vertically */
+            flex-basis: calc(33.333% - 10px);
+            margin-bottom: 10px;
+        }
+
         button {
             width: 100%;
             background-color: #007bff;
@@ -43,37 +62,37 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            margin-top: 20px;
         }
+
         button:hover {
-            background-color: #0056b3;
-        }
-        likeButton {
-            width: 100%;
-            background-color: #007bff;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        likeButton:hover {
             background-color: #0056b3;
         }
     </style>
 </head>
 <body>
     <form method="post">
+        <h1>Start counting!</h1>
+        <p>Fill in the details below to move to the next step.</p>
         {% csrf_token %}
         <label for="name">Session Name:</label>
         <input type="text" id="name" name="name">
-    
+
         <label for="direction">Direction:</label>
         <input type="text" id="direction" name="direction">
-        
+
+        <label for="streams">Streams:</label>
+        <div class="stream-checkboxes">
+            {% for i in stream_numbers %}
+            <div>
+                <input type="checkbox" id="stream{{ i }}" name="streams" value="{{ i }}">
+                <label for="stream{{ i }}">{{ i }}</label>
+            </div>
+            {% endfor %}
+        </div>
+
         <button type="submit">Start Session</button>
         <a href="{% url 'logout' %}" style="margin-top: 10px; display: flex; justify-content: center;">Logout</a>
-    </form> 
-       <!-- Logout Button -->
-   
+    </form>
 </body>
 </html>
