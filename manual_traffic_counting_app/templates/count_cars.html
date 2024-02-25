@@ -28,11 +28,13 @@
         }
 
         .lane {
-            background-color: #d47f7f;
-            width: 100%;
-            height: 100%;
+            background-color: #4d4d4d;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            
         }
-      
+
 
         .car-button-form {
             display: inline-block;
@@ -63,6 +65,9 @@
             height: auto;
             border-radius: 4px;
         }
+        .active-stream {
+    background-color: #4CAF50 !important; /* Green background for active stream */
+}
 
         .count,
         .total-count {
@@ -78,39 +83,134 @@
             justify-content: center;
             margin-top: 20px;
         }
+        .stream-button {
+            width: auto;
+            /* Adjust button width as needed */
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .stream-button:hover {
+            background-color: #0056b3;
+        }
+        .end_session{
+            width: auto;
+            /* Adjust button width as needed */
+            background-color: #ba0202;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
     </style>
 </head>
 
 <body>
     <div class="intersection content">
-        {% for stream in selected_streams %}
-            <div class="lane" style="grid-area: {{ grid_positions|get_item:stream }};">
-                <h3>Stream {{ stream }}</h3>
+        <div class="lane" style="grid-area: 3 / 2 / 4 / 5; text-align: center; background-color:#4CAF50">
+            <form method="post"  style="display: flex; flex-wrap: wrap; justify-content: space-around; gap: 10px;">
+                {% csrf_token %}
                 {% for car_type in car_types %}
-                        <form method="post" class="car-button-form">
-                            {% csrf_token %}
-                            <input type="hidden" name="stream_number" value="{{ stream }}">
-                            <button type="submit" name="car_type_id" value="{{ car_type.id }}" class="car-button">
-                                {% if car_type.image %}
-                                    <img src="{{ car_type.image.url }}" alt="{{ car_type.name }}" class="car-image">
-                                {% endif %}
-                                {{ car_type.name }}
-                                <!-- Correctly display count for this car type and stream -->
-                                <span>Count: {{ stream_counts|get_item:stream|get_item:car_type.name|default:"0" }}</span>
-                            </button>
-                        </form>
+                <button type="button" class="car-button" data-car-type-id="{{ car_type.id }}">
+                    {% if car_type.image %}
+                    <img src="{{ car_type.image.url }}" alt="{{ car_type.name }}" class="car-image">
+                    {% endif %}
+                    {{ car_type.name }}
+                </button>
+                {% endfor %}
+            </form>
+                <form method="post"  style="display: flex; flex-wrap: wrap; justify-content: space-around; gap: 10px;">
+                    {% csrf_token %}
+                    <button type="submit" name="action" value="end_session" class="end_session">End Session</button>
+                </form>
+        </div>
+
+
+        {% for stream in selected_streams %}
+        <div class="lane" style="grid-area: {{ grid_positions|get_item:stream }};">
+            <button type="button" class="stream-button" data-stream-number="{{ stream }}">
+                Select Stream {{ stream }}
+            </button>
+            <div style="text-align: left;">
+                {% for car_type in car_types %}
+                {% if car_type.image %}
+                <img src="{{ car_type.image.url }}" alt="{{ car_type.name }}" class="car-image">
+            {% endif %}
+            <span style="color: #fff;">{{ stream_counts|get_item:stream|get_item:car_type.name|default:"0" }}</span>
+            
                 {% endfor %}
             </div>
-        {% endfor %}
-        <div style="grid-area: 2 / 3;">
-            <form method="post">
-                {% csrf_token %}
-                <button type="submit" name="action" value="end_session" class="car-button">End Session</button>
-            </form>
         </div>
-        <div style="grid-area: 5 / 5;">
+        {% endfor %}
+        <div style="grid-area: 5 / 5; text-align: center;">
             Total Count: {{ current_counts|default:"0" }}
         </div>
     </div>
+
+
+    <script>
+        // Function to set the active stream based on local storage
+        function setActiveStreamFromLocalStorage() {
+            const savedActiveStreamNumber = localStorage.getItem('activeStreamNumber');
+            if (savedActiveStreamNumber) {
+                const activeStreamButton = document.querySelector(`.stream-button[data-stream-number="${savedActiveStreamNumber}"]`);
+                if (activeStreamButton) {
+                    activeStreamButton.classList.add('active-stream');
+                    // Set global variable to remember the active stream across functions
+                    activeStreamNumber = savedActiveStreamNumber;
+                }
+            }
+        }
+    
+        document.addEventListener('DOMContentLoaded', setActiveStreamFromLocalStorage);
+    
+        document.querySelectorAll('.stream-button').forEach(button => {
+            button.addEventListener('click', function () {
+                document.querySelectorAll('.stream-button').forEach(btn => btn.classList.remove('active-stream'));
+                this.classList.add('active-stream');
+                const streamNumber = this.getAttribute('data-stream-number');
+                // Save the active stream number to local storage
+                localStorage.setItem('activeStreamNumber', streamNumber);
+                activeStreamNumber = streamNumber;
+            });
+        });
+    
+        document.querySelectorAll('.car-button').forEach(carButton => {
+            carButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (activeStreamNumber !== null) {
+                    const carTypeId = this.getAttribute('data-car-type-id');
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '';
+    
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                    form.innerHTML = `<input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+                                      <input type="hidden" name="car_type_id" value="${carTypeId}">
+                                      <input type="hidden" name="stream_number" value="${activeStreamNumber}">`;
+    
+                    document.body.appendChild(form);
+                    form.submit();
+                } else {
+                    alert("Please select a stream first.");
+                }
+            });
+        });
+    </script>
+    
+    
 </body>
+
 </html>
