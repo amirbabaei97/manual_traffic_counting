@@ -23,12 +23,12 @@
             grid-template-rows: repeat(5, 1fr);
             width: 100vw;
             height: 100vh;
-            background-color: #fff;
+            background-color: #e8e8e8;
             gap: 20px;
         }
 
         .lane {
-            background-color: #4d4d4d;
+            /* background-color: #4d4d4d; */
             display: flex;
             flex-direction: column;
             justify-content: space-around;
@@ -72,9 +72,9 @@
         .count,
         .total-count {
             font-size: 1em;
-            color: #666;
             margin-top: 5px;
             text-align: center;
+            display: none;
         }
 
         .end-session-form {
@@ -114,49 +114,141 @@
             justify-content: center;
             gap: 10px;
         }
+      
+
+    .intersection {
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+    }
+
+    /* Setting up the shared grid area as a relatively positioned container */
+    .stream-container {
+        grid-area: 3 / 1; /* Location in the grid */
+        display: flex;
+        flex-direction: column;
+        position: relative; /* Required for absolute positioning of children */
+        height: 100%; /* Ensure the container takes full height of the grid area */
+    }
+
+    .stream-container-2 {
+        grid-area: 3 / 5; /* Location in the grid */
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        height: 100%;
+    }
+
+    /* Absolute positioning for each button */
+    .stream1 .stream-button { position: absolute; top: 0;    width: 100%; }
+    .stream2 .stream-button { position: absolute; top: 50%; transform: translateY(-50%); width: 100%; }
+    .stream3 .stream-button { position: absolute; bottom: 0; width: 100%; }
+
+    .stream7 .stream-button { position: absolute; bottom: 0;    width: 100%; }
+    .stream8 .stream-button { position: absolute; top: 50%; transform: translateY(-50%); width: 100%; }
+    .stream9 .stream-button { position: absolute; top: 0; width: 100%; }
+
+    .stream-button {
+        width: 90%; /* Adjust width if necessary */
+        margin: auto; /* Centers in the available space */
+    }
+
+    .stream4 { grid-area: 4 / 2; }
+    .stream5 { grid-area: 4 / 3; }
+    .stream6 { grid-area: 4 / 4; }
+    .stream10 { grid-area: 2 / 4; }
+    .stream11 { grid-area: 2 / 3; }
+    .stream12 { grid-area: 2 / 2; }
     </style>
 </head>
 
 <body>
+
     <div class="intersection content">
+        <p style="grid-area: 1 / 2 / 4 / 5;"> Select a stream and then click on the type of the cars.</p>
         <div class="lane" style="grid-area: 3 / 2 / 4 / 5; text-align: center; background-color:#4CAF50">
             <form method="post"  style="display: flex; flex-wrap: wrap; justify-content: space-around; gap: 10px;">
                 {% csrf_token %}
                 {% for car_type in car_types %}
                 <button type="button" class="car-button" data-car-type-id="{{ car_type.id }}">
-                    {% if car_type.image %}
+                    <!-- {% if car_type.image %}
                     <img src="{{ car_type.image.url }}" alt="{{ car_type.name }}" class="car-image">
-                    {% endif %}
-                    {{ car_type.name }}
+                    {% endif %} -->
+                    {{ car_type.name }}: {{ current_counts|get_item:car_type.name|default:"0" }}
                 </button>
                 {% endfor %}
             </form>
                 <form method="post"  style="display: flex; flex-wrap: wrap; justify-content: space-around; gap: 10px;">
                     {% csrf_token %}
-                    <button type="submit" name="action" value="end_session" class="end_session">End Session</button>
+                    <button style="margin: 20px;" type="submit" name="action" value="end_session" class="end_session">End Session</button>
                 </form>
         </div>
 
+<!-- Define a container for streams 1, 2, and 3 -->
+<div class="lane stream-container">
+    {% for stream in selected_streams %}
+        {% if stream == 1 or stream == 2 or stream == 3 %}
+            <div class="stream-selector {% if stream == 1 %}stream1{% elif stream == 2 %}stream2{% elif stream == 3 %}stream3{% endif %}">
+                <button type="button" class="stream-button" data-stream-number="{{ stream }}">
+                    Stream {{ stream }}
+                </button>
+                <div class="count" style="text-align: left;">
+                    {% for car_type in car_types %}
+                        {% if car_type.image %}
+                            <img src="{{ car_type.image.url }}" alt="{{ car_type.name }}" class="car-image">
+                        {% endif %}
+                        <span style="color: #fff;">{{ stream_counts|get_item:stream|get_item:car_type.name|default:"0" }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
 
-        {% for stream in selected_streams %}
-        <div class="lane" style="grid-area: {{ grid_positions|get_item:stream }};">
+<!-- Define a container for streams 7, 8, and 9 -->
+<div class="lane stream-container-2">
+    {% for stream in selected_streams %}
+        {% if stream == 7 or stream == 8 or stream == 9 %}
+            <div class="stream-selector {% if stream == 7 %}stream7{% elif stream == 8 %}stream8{% elif stream == 9 %}stream9{% endif %}">
+                <button type="button" class="stream-button" data-stream-number="{{ stream }}">
+                    Stream {{ stream }}
+                </button>
+                <div class="count" style="text-align: left;">
+                    {% for car_type in car_types %}
+                        {% if car_type.image %}
+                            <img src="{{ car_type.image.url }}" alt="{{ car_type.name }}" class="car-image">
+                        {% endif %}
+                        <span style="color: #fff;">{{ stream_counts|get_item:stream|get_item:car_type.name|default:"0" }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+<!-- Continue with other streams as usual -->
+{% for stream in selected_streams %}
+    {% if stream > 3 and stream < 7 or stream > 9 %}
+        <div class="lane stream-selector 
+        {% if stream == 4 %}stream4
+        {% elif stream == 5 %}stream5
+        {% elif stream == 6 %}stream6
+        {% elif stream == 10 %}stream10
+        {% elif stream == 11 %}stream11
+        {% elif stream == 12 %}stream12
+        {% endif %}">
             <button type="button" class="stream-button" data-stream-number="{{ stream }}">
-                Select Stream {{ stream }}
+                Stream {{ stream }}
             </button>
-            <div style="text-align: left;">
+            <div class="count" style="text-align: left;">
                 {% for car_type in car_types %}
-                {% if car_type.image %}
-                <img src="{{ car_type.image.url }}" alt="{{ car_type.name }}" class="car-image">
-            {% endif %}
-            <span style="color: #fff;">{{ stream_counts|get_item:stream|get_item:car_type.name|default:"0" }}</span>
-            
+                    {% if car_type.image %}
+                        <img src="{{ car_type.image.url }}" alt="{{ car_type.name }}" class="car-image">
+                    {% endif %}
+                    <span style="color: #fff;">{{ stream_counts|get_item:stream|get_item:car_type.name|default:"0" }}</span>
                 {% endfor %}
             </div>
         </div>
-        {% endfor %}
-        <div style="grid-area: 5 / 5; text-align: center;">
-            Total Count: {{ current_counts|default:"0" }}
-        </div>
+    {% endif %}
+{% endfor %}
     </div>
 
 
