@@ -2,6 +2,9 @@
 nohup.out
 staticfiles
 
+#macOS
+*.DS_Store
+
 # Django #
 *.log
 *.pot

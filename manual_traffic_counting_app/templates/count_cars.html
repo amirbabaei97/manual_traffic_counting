@@ -1,5 +1,6 @@
 {% load custom_filters %}
-
+{% load stream_filters %}
+{% load static %}
 <!DOCTYPE html>
 <html>
 
@@ -17,15 +18,14 @@
         }
 
         .intersection {
-            margin-top: 20px;
+            /* margin-top: 20px; */
             display: grid;
             padding: 15px;
             grid-template-columns: repeat(5, 1fr);
             grid-template-rows: repeat(5, 1fr);
             width: 100vw;
-            height: 100vh;
-            background-color: #e8e8e8;
-            gap: 20px;
+            height: auto;
+            gap: 10px;
         }
 
         .lane {
@@ -33,28 +33,21 @@
             display: flex;
             flex-direction: column;
             justify-content: space-around;
-            
-        }
 
-
-        .car-button-form {
-            display: inline-block;
-            margin: 5px;
         }
 
         .car-button {
             width: auto;
-            /* Adjust button width as needed */
             background-color: #007bff;
             color: white;
-            padding: 10px;
+            padding: 8px; /* Smaller padding */
+            font-size: 0.8rem; /* Smaller text */
             border: none;
             border-radius: 4px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
         }
 
         .car-button:hover {
@@ -62,46 +55,59 @@
         }
 
         img.car-image {
-            width: 50px;
-            height: auto;
-            border-radius: 4px;
+            width: 30px;
+            /* height: auto; */
+            padding: 5px;
         }
+
         .active-stream {
-    background-color: #4CAF50 !important; /* Green background for active stream */
-}
-
-        .count,
-        .total-count {
-            font-size: 1em;
-            margin-top: 5px;
-            text-align: center;
-            display: none;
+            background-color: #4CAF50 !important;
         }
 
-        .end-session-form {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
         .stream-button {
             width: auto;
-            /* Adjust button width as needed */
             background-color: #007bff;
             color: white;
-            padding: 10px;
+            padding: 8px; /* Smaller padding */
+            font-size: 0.8rem; /* Smaller text */
             border: none;
             border-radius: 4px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 5px;
         }
+
         .stream-button:hover {
             background-color: #0056b3;
         }
-        .end_session{
+
+        /* Image on the right */
+        .stream-button.image-right {
+            flex-direction: row-reverse !important;
+            /* Image first, then text */
+        }
+
+        /* Image above the text */
+        .stream-button.image-top {
+            flex-direction: column !important;
+            /* Image on top, text below */
+        }
+
+        /* Image to the left */
+        .stream-button.image-left {
+            flex-direction: row !important;
+            /* Text first, then image */
+        }
+
+        /* Image under the text */
+        .stream-button.image-bottom {
+            flex-direction: column-reverse !important;
+            /* Text on top, image below */
+        }
+
+        .end_session {
             width: auto;
             /* Adjust button width as needed */
             background-color: #ba0202;
@@ -115,55 +121,81 @@
             justify-content: center;
             gap: 10px;
         }
-      
 
-    .intersection {
-        grid-template-columns: repeat(5, 1fr);
-        grid-template-rows: repeat(5, 1fr);
-    }
+        .stream-container {
+            grid-area: 3 / 1;
+            /* Location in the grid */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            /* Required for absolute positioning of children */
+            height: 100%;
+            /* Ensure the container takes full height of the grid area */
+        }
 
-    /* Setting up the shared grid area as a relatively positioned container */
-    .stream-container {
-        grid-area: 3 / 1; /* Location in the grid */
-        display: flex;
-        flex-direction: column;
-        position: relative; /* Required for absolute positioning of children */
-        height: 100%; /* Ensure the container takes full height of the grid area */
-    }
+        .stream-container-2 {
+            grid-area: 3 / 5;
+            /* Location in the grid */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            height: 100%;
+        }
 
-    .stream-container-2 {
-        grid-area: 3 / 5; /* Location in the grid */
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        height: 100%;
-    }
+        .stream-button {
+            width: 90%;
+            /* Adjust width if necessary */
+            margin: auto;
+            /* Centers in the available space */
+        }
 
-    /* Absolute positioning for each button */
-    /* .stream1 .stream-button { position: absolute; top: 0;    width: 100%; }
-    .stream2 .stream-button { position: absolute; top: 50%; transform: translateY(-50%); width: 100%; }
-    .stream3 .stream-button { position: absolute; bottom: 0; width: 100%; } */
+        .stream1 {
+            grid-area: 2 / 1;
+        }
 
-    /* .stream7 .stream-button { position: absolute; bottom: 0;    width: 100%; }
-    .stream8 .stream-button { position: absolute; top: 50%; transform: translateY(-50%); width: 100%; }
-    .stream9 .stream-button { position: absolute; top: 0; width: 100%; } */
+        .stream2 {
+            grid-area: 3 / 1;
+        }
 
-    .stream-button {
-        width: 90%; /* Adjust width if necessary */
-        margin: auto; /* Centers in the available space */
-    }
-    .stream1 { grid-area: 2 / 1; }
-    .stream2 { grid-area: 3 / 1; }
-    .stream3 { grid-area: 4 / 1; }
-    .stream4 { grid-area: 5 / 2; }
-    .stream5 { grid-area: 5 / 3; }
-    .stream6 { grid-area: 5 / 4; }
-    .stream7 { grid-area: 4 / 5; }
-    .stream8 { grid-area: 3 / 5; }
-    .stream9 { grid-area: 2 / 5; }
-    .stream10 { grid-area: 1 / 4; }
-    .stream11 { grid-area: 1 / 3; }
-    .stream12 { grid-area: 1 / 2; }
+        .stream3 {
+            grid-area: 4 / 1;
+        }
+
+        .stream4 {
+            grid-area: 5 / 2;
+        }
+
+        .stream5 {
+            grid-area: 5 / 3;
+        }
+
+        .stream6 {
+            grid-area: 5 / 4;
+        }
+
+        .stream7 {
+            grid-area: 4 / 5;
+        }
+
+        .stream8 {
+            grid-area: 3 / 5;
+        }
+
+        .stream9 {
+            grid-area: 2 / 5;
+        }
+
+        .stream10 {
+            grid-area: 1 / 4;
+        }
+
+        .stream11 {
+            grid-area: 1 / 3;
+        }
+
+        .stream12 {
+            grid-area: 1 / 2;
+        }
     </style>
 </head>
 
@@ -172,7 +204,7 @@
     <div class="intersection content">
         <!-- <p style="grid-area: 1 / 2 / 4 / 5;"> Select a stream and then click on the type of the cars.</p> -->
         <div class="lane" style="grid-area: 2 / 2 / 5 / 5; text-align: center; background-color:#4CAF50">
-            <form method="post"  style="display: flex; flex-wrap: wrap; justify-content: space-around; gap: 10px;">
+            <form method="post" style="display: flex; flex-wrap: wrap; justify-content: space-around; gap: 10px;">
                 {% csrf_token %}
                 {% for car_type in car_types %}
                 <button type="button" class="car-button" data-car-type-id="{{ car_type.id }}">
@@ -183,14 +215,15 @@
                 </button>
                 {% endfor %}
             </form>
-                <form method="post"  style="display: flex; flex-wrap: wrap; justify-content: space-around; gap: 10px;">
-                    {% csrf_token %}
-                    <button style="margin: 20px;" type="submit" name="action" value="end_session" class="end_session">End Session</button>
+            <form method="post" style="display: flex; flex-wrap: wrap; justify-content: space-around; gap: 10px;">
+                {% csrf_token %}
+                <button style="margin: 20px;" type="submit" name="action" value="end_session" class="end_session" onclick="return confirm('Are you sure you want to end the session?')">End
+                    Session</button>
                 </form>
         </div>
 
-<!-- Showing the streams -->
-{% for stream in selected_streams %}
+        <!-- Showing the streams -->
+        {% for stream in selected_streams %}
         <div class="lane stream-selector 
         {% if stream == 1 %}stream1
         {% elif stream == 2 %}stream2
@@ -205,19 +238,14 @@
         {% elif stream == 11 %}stream11
         {% elif stream == 12 %}stream12
         {% endif %}">
-            <button type="button" class="stream-button" data-stream-number="{{ stream }}">
-                Stream {{ stream }}
+            {% load stream_filters %}
+
+            <button type="button" class="stream-button {{ stream|image_position }}" data-stream-number="{{ stream }}">
+                <img src="{{ stream|arrow_image }}" alt="Stream Direction">
             </button>
-            <!-- <div class="count" style="text-align: left;">
-                {% for car_type in car_types %}
-                    {% if car_type.image %}
-                        <img src="{{ car_type.image.url }}" alt="{{ car_type.name }}" class="car-image">
-                    {% endif %}
-                    <span style="color: #fff;">{{ stream_counts|get_item:stream|get_item:car_type.name|default:"0" }}</span>
-                {% endfor %}
-            </div> -->
+
         </div>
-{% endfor %}
+        {% endfor %}
     </div>
 
 
@@ -226,7 +254,8 @@
         function setActiveStreamFromLocalStorage() {
             const savedActiveStreamNumber = localStorage.getItem('activeStreamNumber');
             if (savedActiveStreamNumber) {
-                const activeStreamButton = document.querySelector(`.stream-button[data-stream-number="${savedActiveStreamNumber}"]`);
+                const activeStreamButton = document.querySelector(
+                    `.stream-button[data-stream-number="${savedActiveStreamNumber}"]`);
                 if (activeStreamButton) {
                     activeStreamButton.classList.add('active-stream');
                     // Set global variable to remember the active stream across functions
@@ -234,12 +263,13 @@
                 }
             }
         }
-    
+
         document.addEventListener('DOMContentLoaded', setActiveStreamFromLocalStorage);
-    
+
         document.querySelectorAll('.stream-button').forEach(button => {
             button.addEventListener('click', function () {
-                document.querySelectorAll('.stream-button').forEach(btn => btn.classList.remove('active-stream'));
+                document.querySelectorAll('.stream-button').forEach(btn => btn.classList.remove(
+                    'active-stream'));
                 this.classList.add('active-stream');
                 const streamNumber = this.getAttribute('data-stream-number');
                 // Save the active stream number to local storage
@@ -247,7 +277,7 @@
                 activeStreamNumber = streamNumber;
             });
         });
-    
+
         document.querySelectorAll('.car-button').forEach(carButton => {
             carButton.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -256,12 +286,12 @@
                     const form = document.createElement('form');
                     form.method = 'POST';
                     form.action = '';
-    
+
                     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
                     form.innerHTML = `<input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
                                       <input type="hidden" name="car_type_id" value="${carTypeId}">
                                       <input type="hidden" name="stream_number" value="${activeStreamNumber}">`;
-    
+
                     document.body.appendChild(form);
                     form.submit();
                 } else {
@@ -271,4 +301,5 @@
         });
     </script>
 </body>
+
 </html>
