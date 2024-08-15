@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import CarCount
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -59,7 +59,6 @@ def count_cars(request, session_id):
         10: "1 / 2", 11: "1 / 3", 12: "1 / 4",
     }
 
-
     # Filter selected_streams to include only those with an associated grid position
     valid_streams = [stream for stream in selected_streams if stream in grid_positions]
 
@@ -82,29 +81,40 @@ def count_cars(request, session_id):
     counts_dict = {count['car_type__name']: count['total'] for count in current_counts}
 
     if request.method == 'POST':
-        if 'action' in request.POST and request.POST['action'] == 'end_session':
-            session.end_time = timezone.now()
-            session.save()
-            return redirect('start_session')
+        if 'action' in request.POST:
+            if request.POST['action'] == 'end_session':
+                session.end_time = timezone.now()
+                session.save()
+                return redirect('start_session')
+            elif request.POST['action'] == 'undo':
+                # Handle the undo action
+                car_count_id = request.POST.get('car_count_id')
+                if car_count_id:
+                    car_count = get_object_or_404(CarCount, id=car_count_id)
+                    car_count.delete()
+                    messages.success(request, 'Last action has been undone.')
+                return redirect('count_cars', session_id=session.id)
         else:
             car_type_id = request.POST.get('car_type_id')
-            # Here, you'd also need to know which stream the count is for
-            # This information could come from an additional input in your form
             stream_number = request.POST.get('stream_number')
             car_type = CarType.objects.get(id=car_type_id)
             CarCount.objects.create(
                 car_type=car_type,
                 session=session,
                 timestamp=timezone.now(),
-                stream_number=stream_number  # Assuming this field exists
+                stream_number=stream_number
             )
             return redirect('count_cars', session_id=session.id)
-    else:
-        return render(request, 'count_cars.html', {
-            'car_types': car_types,
-            'session_id': session.id,
-            'current_counts': counts_dict,
-            'stream_counts': stream_dict,
-            'selected_streams': valid_streams,  # Pass valid_streams instead
-            'grid_positions': grid_positions,  # New
-        })
+
+    # Get the last car count entry for undo
+    last_car_count = CarCount.objects.filter(session=session).order_by('-timestamp').first()
+
+    return render(request, 'count_cars.html', {
+        'car_types': car_types,
+        'session_id': session.id,
+        'current_counts': counts_dict,
+        'stream_counts': stream_dict,
+        'selected_streams': valid_streams,  # Pass valid_streams instead
+        'grid_positions': grid_positions,  # New
+        'last_car_count': last_car_count,  # New context variable
+    })

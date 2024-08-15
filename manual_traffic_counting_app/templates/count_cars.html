@@ -110,8 +110,23 @@
         .end_session {
             width: auto;
             /* Adjust button width as needed */
-            background-color: #ba0202;
+            background-color: #e20f0f;
             color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .undo_button {
+            width: auto;
+            /* Adjust button width as needed */
+            background-color: #f5e900;
+            color: rgb(0, 0, 0);
             padding: 10px;
             border: none;
             border-radius: 4px;
@@ -217,9 +232,12 @@
             </form>
             <form method="post" style="display: flex; flex-wrap: wrap; justify-content: space-around; gap: 10px;">
                 {% csrf_token %}
-                <button style="margin: 20px;" type="submit" name="action" value="end_session" class="end_session" onclick="return confirm('Are you sure you want to end the session?')">End
-                    Session</button>
-                </form>
+                <button style="margin: 20px;" type="submit" name="action" value="end_session" class="end_session" onclick="return confirm('Are you sure you want to end the session?')">🏁 End Session</button>
+                {% if last_car_count %}
+                <button style="margin: 20px;" type="submit" name="action" value="undo" class="undo_button">↩️ Undo Last Action</button>
+                <input type="hidden" name="car_count_id" value="{{ last_car_count.id }}">
+                {% endif %}
+            </form>
         </div>
 
         <!-- Showing the streams -->
